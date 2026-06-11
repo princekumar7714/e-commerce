@@ -13,7 +13,7 @@ function Users() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/allusers");
+      const res = await axios.get("https://sundram-backend-1.onrender.com/api/auth/allusers");
       setUsers(res.data);
     } catch (error) {
       console.log(error);
@@ -25,7 +25,7 @@ function Users() {
 
     setDeletingId(userId);
     try {
-      await axios.delete(`http://localhost:5000/api/auth/deleteuser/${userId}`);
+      await axios.delete(`https://sundram-backend-1.onrender.com/api/auth/deleteuser/${userId}`);
       setUsers((prev) => prev.filter((u) => u._id !== userId));
     } catch (error) {
       console.log(error);

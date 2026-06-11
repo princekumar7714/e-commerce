@@ -8,7 +8,7 @@ import {
   Save,
 } from "lucide-react";
 
-const API_URL = "http://localhost:5000/products";
+const API_URL = "https://sundram-backend-1.onrender.com/products";
 
 function Products() {
   const [products, setProducts] = useState([]);

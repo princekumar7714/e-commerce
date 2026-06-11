@@ -24,7 +24,7 @@ function Dashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/dashboard/stats");
+      const res = await axios.get("https://sundram-backend-1.onrender.com/api/dashboard/stats");
       setStatsData(res.data);
     } catch (error) {
       console.log(error);

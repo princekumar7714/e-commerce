@@ -96,7 +96,7 @@ const placeOrder = async () => {
     };
 
     const res = await axios.post(
-      "http://localhost:5000/api/orders/create",
+      "https://sundram-backend-1.onrender.com/api/orders/create",
       orderData
     );
 

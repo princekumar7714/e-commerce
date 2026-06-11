@@ -17,7 +17,7 @@ const BestSeller = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/products/getallproducts"
+        "https://sundram-backend-1.onrender.com/products/getallproducts"
       );
 
       setProducts(response.data.slice(0, 5));

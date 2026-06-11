@@ -18,7 +18,7 @@ const OfferBanner = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/products/getallproducts"
+        "https://sundram-backend-1.onrender.com/products/getallproducts"
       );
 
       // Home page par sirf 5 products

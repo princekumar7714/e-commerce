@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Trash2, Edit, Plus, Save, X, Upload, Image as ImageIcon } from "lucide-react";
 
-const API_URL = "http://localhost:5000/products";
-const UPLOAD_URL = "http://localhost:5000/api/upload";
+const API_URL = "https://sundram-backend-1.onrender.com/products";
+const UPLOAD_URL = "https://sundram-backend-1.onrender.com/api/upload";
 
 const Admin = () => {
   const [products, setProducts] = useState([]);
@@ -54,7 +54,7 @@ const Admin = () => {
       const response = await axios.post(UPLOAD_URL, uploadData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      const fullImageUrl = `http://localhost:5000${response.data.imagePath}`;
+      const fullImageUrl = `https://sundram-backend-1.onrender.com${response.data.imagePath}`;
       setFormData((prev) => ({ ...prev, image: fullImageUrl }));
       setPreviewImage(fullImageUrl);
     } catch (error) {

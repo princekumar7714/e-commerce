@@ -24,7 +24,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const response = await axios.post('https://sundram-backend-1.onrender.com/api/auth/register', formData);
       login(response.data, response.data.token);
       navigate('/');
     } catch (error) {

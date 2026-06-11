@@ -23,7 +23,7 @@ function Orders() {
   const fetchOrders = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/orders/all"
+        "https://sundram-backend-1.onrender.com/api/orders/all"
       );
 
       setOrders(res.data);
@@ -35,7 +35,7 @@ function Orders() {
  const updateOrderStatus = async (orderId, status) => {
   try {
     await axios.put(
-      `http://localhost:5000/api/orders/${orderId}/status`,
+      `https://sundram-backend-1.onrender.com/api/orders/${orderId}/status`,
       {
         orderStatus: status,
       }
