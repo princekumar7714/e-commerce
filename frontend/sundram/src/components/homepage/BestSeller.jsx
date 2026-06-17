@@ -9,6 +9,10 @@ const BestSeller = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const getProductImage = (product) =>
+    product?.image ||
+    (Array.isArray(product?.images) ? product.images[0] : "") ||
+    "https://via.placeholder.com/300x300?text=No+Image";
 
   useEffect(() => {
     fetchProducts();
@@ -17,10 +21,13 @@ const BestSeller = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "https://sundram-backend-1.onrender.com/products/getallproducts"
+        `https://sundram-backend-1.onrender.com/products/getallproducts?t=${Date.now()}`
       );
 
-      setProducts(response.data.slice(0, 5));
+      const sortedProducts = [...(response.data || [])].sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      );
+      setProducts(sortedProducts.slice(0, 5));
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -84,7 +91,7 @@ const BestSeller = () => {
                 <Link to={`/product/${product._id}`}>
                   <div className="relative">
                     <img
-                      src={product.image}
+                      src={getProductImage(product)}
                       alt={product.name}
                       className="w-full h-44 object-cover"
                     />

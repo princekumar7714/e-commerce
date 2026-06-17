@@ -3,11 +3,14 @@ import axios from "axios";
 import { Plus, Edit, Trash2, X, Save } from "lucide-react";
 
 const API_URL = "https://sundram-backend-1.onrender.com/products";
+const UPLOAD_URL = "https://sundram-backend-1.onrender.com/api/upload";
 
 function Products() {
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [existingImages, setExistingImages] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,14 +28,17 @@ function Products() {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
+  async function fetchProducts() {
     try {
-      const res = await axios.get(`${API_URL}/getallproducts`);
-      setProducts(res.data);
+      const res = await axios.get(`${API_URL}/getallproducts?t=${Date.now()}`);
+      const sortedProducts = [...(res.data || [])].sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+      );
+      setProducts(sortedProducts);
     } catch (error) {
       console.log(error);
     }
-  };
+  }
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -43,47 +49,72 @@ function Products() {
     });
   };
 
-  console.log(formData.images);
-console.log(formData.images.length);
+  const getProductImages = (product) => {
+    if (Array.isArray(product?.images) && product.images.length > 0) {
+      return product.images;
+    }
+    if (product?.image) {
+      return [product.image];
+    }
+    return [];
+  };
+
+  const handleImageChange = (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length > 5) {
+      alert("You can upload maximum 5 images.");
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      images: selectedFiles,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const data = new FormData();
-
-      data.append("name", formData.name);
-      data.append("price", formData.price);
-      data.append("category", formData.category);
-      data.append("description", formData.description);
-      data.append("stock", formData.stock);
-      data.append("rating", formData.rating);
-      data.append("featured", formData.featured);
-      data.append("discount", formData.discount);
-
-      if (formData.images) {
+      let uploadedImages = [];
+      if (formData.images?.length > 0) {
+        setUploading(true);
         for (let i = 0; i < formData.images.length; i++) {
-          data.append("images", formData.images[i]);
+          const uploadData = new FormData();
+          uploadData.append("image", formData.images[i]);
+          const uploadResponse = await axios.post(UPLOAD_URL, uploadData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          const imagePath = uploadResponse?.data?.imagePath;
+          if (imagePath) {
+            uploadedImages.push(
+              imagePath.startsWith("http")
+                ? imagePath
+                : `https://sundram-backend-1.onrender.com${imagePath}`,
+            );
+          }
         }
       }
-      for (let pair of data.entries()) {
-  console.log(pair[0], pair[1]);
-}
+
+      const finalImages =
+        uploadedImages.length > 0 ? uploadedImages : existingImages;
+
+      const payload = {
+        name: formData.name,
+        price: Number(formData.price),
+        category: formData.category,
+        description: formData.description,
+        stock: Number(formData.stock),
+        rating: Number(formData.rating),
+        featured: formData.featured,
+        discount: Number(formData.discount),
+        images: finalImages,
+        image: finalImages[0] || "",
+      };
 
       if (editingProduct) {
-        await axios.put(
-          `${API_URL}/updateproduct/${editingProduct._id}`,
-          data,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          },
-        );
+        await axios.put(`${API_URL}/updateproduct/${editingProduct._id}`, payload);
       } else {
-        await axios.post(
-  `${API_URL}/addproduct`,
-  data
-);
+        await axios.post(`${API_URL}/addproduct`, payload);
       }
 
       fetchProducts();
@@ -94,11 +125,14 @@ console.log(formData.images.length);
       console.log(error);
 
       alert(error?.response?.data?.message || "Failed to save product");
+    } finally {
+      setUploading(false);
     }
   };
 
  const handleEdit = (product) => {
   setEditingProduct(product);
+  const productImages = getProductImages(product);
 
   setFormData({
     name: product.name || "",
@@ -111,6 +145,7 @@ console.log(formData.images.length);
     featured: product.featured || false,
     discount: product.discount || 0,
   });
+  setExistingImages(productImages);
 
   setShowModal(true);
 };
@@ -131,6 +166,7 @@ console.log(formData.images.length);
   const closeModal = () => {
     setShowModal(false);
     setEditingProduct(null);
+    setExistingImages([]);
 
    setFormData({
   name: "",
@@ -236,6 +272,7 @@ console.log(formData.images.length);
                       <img
                         src={
                           product.images?.[0] ||
+                          product.image ||
                           "https://via.placeholder.com/150"
                         }
                         alt=""
@@ -296,7 +333,7 @@ console.log(formData.images.length);
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
               <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-green-600 to-emerald-500 px-8 py-5 flex justify-between items-center">
+                <div className="bg-linear-to-r from-green-600 to-emerald-500 px-8 py-5 flex justify-between items-center">
                   <div>
                     <h2 className="text-2xl font-bold text-white">
                       {editingProduct ? "Update Product" : "Add New Product"}
@@ -426,7 +463,7 @@ console.log(formData.images.length);
                   {/* Image URL */}
                   <div className="mt-5">
                     <label className="block text-sm font-semibold mb-2 text-slate-700">
-                      Product Image URL
+                      Product Images (up to 5)
                     </label>
 
                     <input
@@ -434,14 +471,30 @@ console.log(formData.images.length);
                       multiple
                       accept="image/*"
                       className="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none"
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          images: e.target.files,
-                        })
-                      }
+                      onChange={handleImageChange}
                     />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Select 4-5 product images for best results.
+                    </p>
                   </div>
+
+                  {existingImages.length > 0 && formData.images.length === 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-slate-700 mb-2">
+                        Existing Images
+                      </p>
+                      <div className="flex flex-wrap gap-3">
+                        {existingImages.map((image, index) => (
+                          <img
+                            key={`${image}-${index}`}
+                            src={image}
+                            alt=""
+                            className="w-24 h-24 object-cover rounded-xl border"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {formData.images && formData.images.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-3">
@@ -499,10 +552,15 @@ console.log(formData.images.length);
 
                     <button
                       type="submit"
+                      disabled={uploading}
                       className="px-8 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-medium flex items-center gap-2"
                     >
                       <Save size={18} />
-                      {editingProduct ? "Update Product" : "Save Product"}
+                      {uploading
+                        ? "Uploading..."
+                        : editingProduct
+                        ? "Update Product"
+                        : "Save Product"}
                     </button>
                   </div>
                 </form>

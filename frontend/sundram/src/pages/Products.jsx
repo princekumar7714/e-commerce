@@ -14,6 +14,10 @@ const Products = () => {
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [showFilters, setShowFilters] = useState(false);
   const { addToCart } = useCart();
+  const getProductImage = (product) =>
+    product?.image ||
+    (Array.isArray(product?.images) ? product.images[0] : "") ||
+    "https://via.placeholder.com/300x300?text=No+Image";
 
   const categories = [
     { value: 'all', label: 'All Products' },
@@ -33,8 +37,13 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-     const response = await axios.get('https://sundram-backend-1.onrender.com/products/getallproducts');
-      setProducts(response.data);
+      const response = await axios.get(
+        `https://sundram-backend-1.onrender.com/products/getallproducts?t=${Date.now()}`
+      );
+      const sortedProducts = [...(response.data || [])].sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      );
+      setProducts(sortedProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
@@ -175,7 +184,7 @@ const Products = () => {
                   <Link to={`/product/${product._id}`}>
                     <div className="relative">
                       <img
-                        src={product.image}
+                        src={getProductImage(product)}
                         alt={product.name}
                         className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
                       />

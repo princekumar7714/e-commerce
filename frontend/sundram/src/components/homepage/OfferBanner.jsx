@@ -10,6 +10,10 @@ const OfferBanner = () => {
   const [loading, setLoading] = useState(true);
 
   const { addToCart } = useCart();
+  const getProductImage = (product) =>
+    product?.image ||
+    (Array.isArray(product?.images) ? product.images[0] : "") ||
+    "https://via.placeholder.com/300x300?text=No+Image";
 
   useEffect(() => {
     fetchProducts();
@@ -18,11 +22,13 @@ const OfferBanner = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "https://sundram-backend-1.onrender.com/products/getallproducts"
+        `https://sundram-backend-1.onrender.com/products/getallproducts?t=${Date.now()}`
       );
 
-      // Home page par sirf 5 products
-      setProducts(response.data.slice(0, 5));
+      const sortedProducts = [...(response.data || [])].sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      );
+      setProducts(sortedProducts.slice(0, 5));
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -92,14 +98,14 @@ const OfferBanner = () => {
                     )}
 
                     <img
-                      src={product.image}
+                      src={getProductImage(product)}
                       alt={product.name}
                       className="w-full h-44 object-contain p-4 hover:scale-105 transition duration-300"
                     />
                   </div>
                 </Link>
 
-                <div className="p-4 flex flex-col flex-grow">
+                <div className="p-4 flex flex-col grow">
                   {/* Rating */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">

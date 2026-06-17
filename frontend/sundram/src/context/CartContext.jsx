@@ -13,16 +13,22 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const addToCart = (product) => {
+    const normalizedImage =
+      product?.image ||
+      (Array.isArray(product?.images) ? product.images[0] : "") ||
+      "";
+    const normalizedProduct = { ...product, image: normalizedImage };
+
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item._id === product._id);
+      const existingItem = prevCart.find((item) => item._id === normalizedProduct._id);
       if (existingItem) {
         return prevCart.map((item) =>
-          item._id === product._id
+          item._id === normalizedProduct._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prevCart, { ...product, quantity: 1 }];
+      return [...prevCart, { ...normalizedProduct, quantity: 1 }];
     });
   };
 

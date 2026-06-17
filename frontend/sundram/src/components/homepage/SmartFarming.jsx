@@ -8,6 +8,10 @@ const SmartFarming = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const getProductImage = (product) =>
+    product?.image ||
+    (Array.isArray(product?.images) ? product.images[0] : "") ||
+    "https://via.placeholder.com/300x300?text=No+Image";
 
   useEffect(() => {
     fetchProducts();
@@ -16,9 +20,12 @@ const SmartFarming = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "https://sundram-backend-1.onrender.com/products/getallproducts"
+        `https://sundram-backend-1.onrender.com/products/getallproducts?t=${Date.now()}`
       );
-      setProducts(response.data.slice(0, 4));
+      const sortedProducts = [...(response.data || [])].sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      );
+      setProducts(sortedProducts.slice(0, 4));
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -102,7 +109,7 @@ const SmartFarming = () => {
                     )}
 
                     <img
-                      src={product.image}
+                      src={getProductImage(product)}
                       alt={product.name}
                       className="w-full h-[190px] object-contain p-4 group-hover:scale-[1.04] transition-transform duration-400"
                     />
@@ -110,7 +117,7 @@ const SmartFarming = () => {
                 </Link>
 
                 {/* BODY */}
-                <div className="p-4 flex flex-col flex-grow">
+                <div className="p-4 flex flex-col grow">
 
                   {/* CATEGORY + RATING */}
                   <div className="flex items-center justify-between mb-2">
