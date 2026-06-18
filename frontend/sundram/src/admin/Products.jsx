@@ -71,65 +71,62 @@ function Products() {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      let uploadedImages = [];
-      if (formData.images?.length > 0) {
-        setUploading(true);
-        for (let i = 0; i < formData.images.length; i++) {
-          const uploadData = new FormData();
-          uploadData.append("image", formData.images[i]);
-          const uploadResponse = await axios.post(UPLOAD_URL, uploadData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-          const imagePath = uploadResponse?.data?.imagePath;
-          if (imagePath) {
-            uploadedImages.push(
-              imagePath.startsWith("http")
-                ? imagePath
-                : `https://sundram-backend-1.onrender.com${imagePath}`,
-            );
-          }
-        }
-      }
+  try {
+    const form = new FormData();
 
-      const finalImages =
-        uploadedImages.length > 0 ? uploadedImages : existingImages;
+    form.append("name", formData.name);
+    form.append("price", formData.price);
+    form.append("category", formData.category);
+    form.append("description", formData.description);
+    form.append("stock", formData.stock);
+    form.append("rating", formData.rating);
+    form.append("featured", formData.featured);
+    form.append("discount", formData.discount);
 
-      const payload = {
-        name: formData.name,
-        price: Number(formData.price),
-        category: formData.category,
-        description: formData.description,
-        stock: Number(formData.stock),
-        rating: Number(formData.rating),
-        featured: formData.featured,
-        discount: Number(formData.discount),
-        images: finalImages,
-        image: finalImages[0] || "",
-      };
-
-      if (editingProduct) {
-        await axios.put(`${API_URL}/updateproduct/${editingProduct._id}`, payload);
-      } else {
-        await axios.post(`${API_URL}/addproduct`, payload);
-      }
-
-      fetchProducts();
-      closeModal();
-
-      alert("Product Saved Successfully");
-    } catch (error) {
-      console.log(error);
-
-      alert(error?.response?.data?.message || "Failed to save product");
-    } finally {
-      setUploading(false);
+    if (formData.images?.length > 0) {
+      formData.images.forEach((file) => {
+        form.append("images", file);
+      });
     }
-  };
 
+    if (editingProduct) {
+      await axios.put(
+        `${API_URL}/updateproduct/${editingProduct._id}`,
+        form,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    } else {
+      await axios.post(
+        `${API_URL}/addproduct`,
+        form,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    }
+
+    alert("Product Saved Successfully");
+
+    fetchProducts();
+    closeModal();
+
+  } catch (error) {
+    console.log(error);
+    alert(
+      error?.response?.data?.message ||
+      "Failed to save product"
+    );
+  }
+};
  const handleEdit = (product) => {
   setEditingProduct(product);
   const productImages = getProductImages(product);
