@@ -5,6 +5,7 @@ import { Trash2, Edit, Plus, Save, X, Upload, Image as ImageIcon } from "lucide-
 const API_URL = "https://sundram-backend-1.onrender.com/products";
 const UPLOAD_URL = "https://sundram-backend-1.onrender.com/api/upload";
 
+
 const Admin = () => {
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
