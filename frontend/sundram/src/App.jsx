@@ -6,7 +6,6 @@ import Register from "./pages/Register";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
-// import Products from "./pages/Products";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { AuthProvider } from "./context/AuthContext";
@@ -15,7 +14,6 @@ import Contact from "./pages/Contact";
 import About from "./pages/About";
 import ProductDetails from "./pages/ProductDetails";
 import Dashboard from "./admin/Dashboard";
-// import Products from "./admin/Products";
 import Orders from "./admin/Orders";
 import Users from "./admin/Users";
 import Banners from "./admin/Banners";
@@ -25,7 +23,8 @@ import Settings from "./admin/Settings";
 import ProductsPage from "./pages/Products";
 import AdminProducts from "./admin/Products";
 import SprayerDetails from "./components/homepage/SprayerDetails";
-
+import AdminLogin from "./admin/AdminLogin";
+import ProtectedAdminRoute from "./admin/ProtectedAdminRoute";
 
 function AppContent() {
   const location = useLocation();
@@ -37,19 +36,77 @@ function AppContent() {
       {!isAdminPage && <Navbar />}
 
       <Routes>
-        {/* <Route path="/admin" element={<Dashboard />} /> */}
-        <Route path="/admin/products" element={<AdminProducts />} />
-        <Route path="/admin/orders" element={<Orders />} />
-        <Route path="/admin/users" element={<Users />} />
-        <Route path="/admin/banners" element={<Banners />} />
-        <Route path="/admin/coupons" element={<Coupons />} />
-        <Route path="/admin/analytics" element={<Analytics />} />
-        <Route path="/admin/settings" element={<Settings />} />
+        {/* Admin Auth (NOT protected — this is the login page itself) */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Admin Pages (protected — redirects to /admin/login if not an admin) */}
+        <Route
+          path="/admin/products"
+          element={
+            <ProtectedAdminRoute>
+              <AdminProducts />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/orders"
+          element={
+            <ProtectedAdminRoute>
+              <Orders />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedAdminRoute>
+              <Users />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/banners"
+          element={
+            <ProtectedAdminRoute>
+              <Banners />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/coupons"
+          element={
+            <ProtectedAdminRoute>
+              <Coupons />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics"
+          element={
+            <ProtectedAdminRoute>
+              <Analytics />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/settings"
+          element={
+            <ProtectedAdminRoute>
+              <Settings />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedAdminRoute>
+              <Dashboard />
+            </ProtectedAdminRoute>
+          }
+        />
+
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-
-        {/* Admin */}
-        <Route path="/admin" element={<Dashboard />} />
 
         {/* Auth */}
         <Route path="/login" element={<Login />} />
