@@ -1,17 +1,41 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Star } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 
+const BACKEND_URL = "https://sundram-backend-1.onrender.com";
+
+const resolveImageUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  return `${BACKEND_URL}/${path.replace(/^\/+/, "")}`;
+};
+
+const getImagesArray = (images) => {
+  if (Array.isArray(images)) return images;
+  if (typeof images === "string") {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
 const BestSeller = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
-  const getProductImage = (product) =>
-    product?.image ||
-    (Array.isArray(product?.images) ? product.images[0] : "") ||
-    "https://via.placeholder.com/300x300?text=No+Image";
+  const getProductImage = (product) => {
+    const imagesArr = getImagesArray(product?.images);
+    const raw = product?.image || imagesArr[0] || "";
+    return resolveImageUrl(raw) || "https://via.placeholder.com/300x300?text=No+Image";
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -20,7 +44,7 @@ const BestSeller = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        `https://sundram-backend-1.onrender.com/products/getallproducts?t=${Date.now()}`
+        `${BACKEND_URL}/products/getallproducts?t=${Date.now()}`
       );
 
       const sortedProducts = [...(response.data || [])].sort(

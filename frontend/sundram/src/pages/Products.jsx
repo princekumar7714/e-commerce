@@ -4,6 +4,29 @@ import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { ShoppingCart, Search, SlidersHorizontal, Star } from 'lucide-react';
 
+const BACKEND_URL = "https://sundram-backend-1.onrender.com";
+
+const resolveImageUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  return `${BACKEND_URL}/${path.replace(/^\/+/, "")}`;
+};
+
+const getImagesArray = (images) => {
+  if (Array.isArray(images)) return images;
+  if (typeof images === "string") {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
 const Products = () => {
   const { category } = useParams();
   const [products, setProducts] = useState([]);
@@ -14,10 +37,11 @@ const Products = () => {
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [showFilters, setShowFilters] = useState(false);
   const { addToCart } = useCart();
-  const getProductImage = (product) =>
-    product?.image ||
-    (Array.isArray(product?.images) ? product.images[0] : "") ||
-    "https://via.placeholder.com/300x300?text=No+Image";
+  const getProductImage = (product) => {
+    const imagesArr = getImagesArray(product?.images);
+    const raw = product?.image || imagesArr[0] || "";
+    return resolveImageUrl(raw) || "https://via.placeholder.com/300x300?text=No+Image";
+  };
 
   const categories = [
     { value: 'all', label: 'All Products' },
@@ -38,7 +62,7 @@ const Products = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        `https://sundram-backend-1.onrender.com/products/getallproducts?t=${Date.now()}`
+        `${BACKEND_URL}/products/getallproducts?t=${Date.now()}`
       );
       const sortedProducts = [...(response.data || [])].sort(
         (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
@@ -178,10 +202,10 @@ const Products = () => {
 
               return (
                 <div
-                  key={product._id}
+                  key={product.id}
                   className="bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition group"
                 >
-                  <Link to={`/product/${product._id}`}>
+                  <Link to={`/product/${product.id}`}>
                     <div className="relative">
                       <img
                         src={getProductImage(product)}
@@ -197,7 +221,7 @@ const Products = () => {
                   </Link>
 
                   <div className="p-3">
-                    <Link to={`/product/${product._id}`}>
+                    <Link to={`/product/${product.id}`}>
                       <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 hover:text-green-700 transition">
                         {product.name}
                       </h3>
