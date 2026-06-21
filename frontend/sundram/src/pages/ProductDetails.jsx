@@ -14,6 +14,20 @@ const resolveImageUrl = (path) => {
   return `${BACKEND_URL}/${path.replace(/^\/+/, "")}`;
 };
 
+// images may come back as a real array, a JSON string, or null/undefined
+const getImagesArray = (images) => {
+  if (Array.isArray(images)) return images;
+  if (typeof images === "string") {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
 const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
@@ -33,9 +47,10 @@ const ProductDetails = () => {
 );
 
       setProduct(response.data);
+      const imagesArr = getImagesArray(response.data?.images);
       const productImages =
-        response.data?.images?.length > 0
-          ? response.data.images
+        imagesArr.length > 0
+          ? imagesArr
           : response.data?.image
           ? [response.data.image]
           : [];
@@ -69,9 +84,10 @@ const ProductDetails = () => {
         (product.price * product.discount) / 100
       : product.price;
 
+  const imagesArr = getImagesArray(product?.images);
   const productImages =
-    product?.images?.length > 0
-      ? product.images
+    imagesArr.length > 0
+      ? imagesArr
       : product?.image
       ? [product.image]
       : [];
