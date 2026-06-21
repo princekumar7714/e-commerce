@@ -4,6 +4,16 @@ import { useParams } from "react-router-dom";
 import { ShoppingCart, Star } from "lucide-react";
 import { useCart } from "../context/CartContext";
 
+const BACKEND_URL = "https://sundram-backend-1.onrender.com";
+
+const resolveImageUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  return `${BACKEND_URL}/${path.replace(/^\/+/, "")}`;
+};
+
 const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
@@ -19,7 +29,7 @@ const ProductDetails = () => {
   async function fetchProduct() {
     try {
       const response = await axios.get(
-  `https://sundram-backend-1.onrender.com/products/getsingleproduct/${id}`
+  `${BACKEND_URL}/products/getsingleproduct/${id}`
 );
 
       setProduct(response.data);
@@ -29,7 +39,7 @@ const ProductDetails = () => {
           : response.data?.image
           ? [response.data.image]
           : [];
-      setSelectedImage(productImages[0] || "");
+      setSelectedImage(resolveImageUrl(productImages[0]) || "");
     } catch (error) {
       console.log(error);
     } finally {
@@ -66,12 +76,12 @@ const ProductDetails = () => {
       ? [product.image]
       : [];
 
-  const mainImage = selectedImage || productImages[0] || "";
+  const mainImage = selectedImage || resolveImageUrl(productImages[0]) || "";
 
   const handleAddToCart = () => {
     addToCart({
       ...product,
-      image: mainImage || product.image,
+      image: mainImage || resolveImageUrl(product.image),
     });
   };
 
@@ -94,24 +104,27 @@ const ProductDetails = () => {
 
             {productImages.length > 1 && (
               <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
-                {productImages.map((image, index) => (
-                  <button
-                    key={`${image}-${index}`}
-                    type="button"
-                    onClick={() => setSelectedImage(image)}
-                    className={`w-20 h-20 shrink-0 rounded-xl border-2 overflow-hidden transition ${
-                      image === mainImage
-                        ? "border-green-700"
-                        : "border-gray-200 hover:border-gray-400"
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`${product.name}-${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                {productImages.map((image, index) => {
+                  const resolvedImage = resolveImageUrl(image);
+                  return (
+                    <button
+                      key={`${resolvedImage}-${index}`}
+                      type="button"
+                      onClick={() => setSelectedImage(resolvedImage)}
+                      className={`w-20 h-20 shrink-0 rounded-xl border-2 overflow-hidden transition ${
+                        resolvedImage === mainImage
+                          ? "border-green-700"
+                          : "border-gray-200 hover:border-gray-400"
+                      }`}
+                    >
+                      <img
+                        src={resolvedImage}
+                        alt={`${product.name}-${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -1,4 +1,3 @@
-
 import  { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -85,10 +84,10 @@ const BestSeller = () => {
 
             return (
               <div
-                key={product._id}
+                key={product.id}
                 className="bg-white rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col h-[380px]"
               >
-                <Link to={`/product/${product._id}`}>
+                <Link to={`/product/${product.id}`}>
                   <div className="relative">
                     <img
                       src={getProductImage(product)}
@@ -106,7 +105,7 @@ const BestSeller = () => {
 
                 <div className="p-3 flex flex-col flex-1">
 
-                  <Link to={`/product/${product._id}`}>
+                  <Link to={`/product/${product.id}`}>
                     <h3 className="text-sm font-semibold text-gray-800 h-10 overflow-hidden hover:text-green-700">
                       {product.name}
                     </h3>
@@ -168,4 +167,3 @@ const BestSeller = () => {
 };
 
 export default BestSeller;
-
