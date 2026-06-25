@@ -162,11 +162,13 @@ function Products() {
 
     if (!confirmDelete) return;
 
+    const deleteId = id || "";
     try {
-      await axios.delete(`${API_URL}/deleteproduct/${id}`);
-
+      const resp = await axios.delete(`${API_URL}/deleteproduct/${deleteId}`);
+      console.log("delete response:", resp?.data);
       fetchProducts();
     } catch (error) {
+      alert(error?.response?.data?.message || "Failed to delete product");
       console.log(error);
     }
   };
@@ -327,8 +329,9 @@ function Products() {
                       </button>
 
                       <button
-                        onClick={() => handleDelete(product._id)}
+                        onClick={() => handleDelete(product._id || product.id)}
                         className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition"
+                        title={product._id || product.id}
                       >
                         <Trash2 size={18} />
                       </button>

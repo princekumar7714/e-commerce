@@ -110,12 +110,17 @@ const Admin = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    const deleteId = id || "";
     try {
-      await axios.delete(`${API_URL}/deleteproduct/${id}`);
-      fetchProducts();
+      const resp = await axios.delete(`${API_URL}/deleteproduct/${deleteId}`);
+      console.log("delete response:", resp?.data);
+      await fetchProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
+      alert(error?.response?.data?.message || "Failed to delete product");
     }
   };
 
@@ -200,7 +205,7 @@ const Admin = () => {
                         <button onClick={() => handleEdit(product)} className="w-11 h-11 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center hover:bg-blue-700 hover:text-white transition">
                           <Edit size={20} />
                         </button>
-                        <button onClick={() => handleDelete(product._id)} className="w-11 h-11 rounded-xl bg-red-100 text-red-700 flex items-center justify-center hover:bg-red-700 hover:text-white transition">
+                        <button onClick={() => handleDelete(product._id || product.id)} className="w-11 h-11 rounded-xl bg-red-100 text-red-700 flex items-center justify-center hover:bg-red-700 hover:text-white transition">
                           <Trash2 size={20} />
                         </button>
                       </div>
