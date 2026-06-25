@@ -5,74 +5,76 @@ const WhatsAppBotWidget = ({
   whatsappNumber = "9084486898",
   greeting = "Hello! I need help with Sundram Agri products.",
 }) => {
-  const { chatUrl, callUrl, waDisplay } = useMemo(() => {
+  const { chatUrl, callUrl } = useMemo(() => {
     // wa.me expects number without + and without spaces.
     const clean = String(whatsappNumber).replace(/[^0-9]/g, "");
     const encodedGreeting = encodeURIComponent(greeting);
 
-    // Click to open WhatsApp chat with prefilled text
     const chat = `https://wa.me/${clean}?text=${encodedGreeting}`;
 
-    // NOTE: WhatsApp Calling deep-links are not consistently supported via plain links.
-    // We still provide a WhatsApp option that asks for a call.
+    // WhatsApp link that contains a call-request message.
     const callText = encodeURIComponent(
       `Hi! Please call me. My number is... (write here)\nRegarding: ${greeting}`
     );
     const call = `https://wa.me/${clean}?text=${callText}`;
 
-    const display = clean.length >= 10 ? `+${clean}` : clean;
-
-    return { chatUrl: chat, callUrl: call, waDisplay: display };
+    return { chatUrl: chat, callUrl: call };
   }, [whatsappNumber, greeting]);
 
-  const containerStyle =
-    "fixed right-4 bottom-6 z-50 flex flex-col gap-3 items-end";
+  const containerStyle = "fixed right-4 bottom-6 z-50";
 
-  const bubbleStyle =
-    "flex items-center gap-2 px-4 py-3 rounded-full shadow-xl text-sm font-semibold transition transform hover:scale-[1.02]";
+  const triggerStyle =
+    "flex items-center justify-center w-14 h-14 rounded-full shadow-2xl text-white transition transform hover:scale-[1.04] bg-green-700";
+
+  const sheetStyle =
+    "mt-3 w-64 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden";
 
   return (
     <div className={containerStyle}>
-      {/* WhatsApp Chat */}
-      <a
-        href={chatUrl}
-        target="_blank"
-        rel="noreferrer"
-        className={`${bubbleStyle} bg-green-700 text-white`}
-        aria-label="Chat on WhatsApp"
-        title="Chat on WhatsApp"
+      {/* Floating trigger (clicking just navigates via the sheet links) */}
+      <button
+        type="button"
+        className={triggerStyle}
+        aria-label="Open chat options"
+        title="Chat with us"
       >
-        <MessageCircle size={18} />
-        Chat on WhatsApp
-      </a>
+        <MessageCircle size={20} />
+      </button>
 
-      {/* Bot Chat (uses WhatsApp chat with a bot-style greeting) */}
-      <a
-        href={chatUrl}
-        target="_blank"
-        rel="noreferrer"
-        className={`${bubbleStyle} bg-emerald-600 text-white`}
-        aria-label="Bot chat on WhatsApp"
-        title="Bot chat"
-      >
-        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
-          <span className="text-white text-xs font-bold">BOT</span>
-        </span>
-        Bot Chat
-      </a>
+      {/* Bottom sheet / popup */}
+      <div className={sheetStyle}>
+        <div className="p-3 text-sm font-semibold text-gray-800 border-b border-gray-100">
+          Chat Options
+        </div>
 
-      {/* WhatsApp Call (opens WhatsApp with request message) */}
-      <a
-        href={callUrl}
-        target="_blank"
-        rel="noreferrer"
-        className={`${bubbleStyle} bg-green-800 text-white`}
-        aria-label="Request call on WhatsApp"
-        title={`Request a call on WhatsApp (${waDisplay})`}
-      >
-        <Phone size={18} />
-        Call via WhatsApp
-      </a>
+        <div className="p-3 flex flex-col gap-3">
+          {/* 1) Chat with us */}
+          <a
+            href={chatUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-green-50 hover:bg-green-100 transition font-semibold text-green-800"
+            aria-label="Chat with us"
+            title="Chat with us"
+          >
+            <MessageCircle size={18} className="text-green-700" />
+            Chat with us
+          </a>
+
+          {/* 2) Missed call / call request */}
+          <a
+            href={callUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-green-100 hover:bg-green-200 transition font-semibold text-green-900"
+            aria-label="Missed call"
+            title="Missed call / Request call"
+          >
+            <Phone size={18} className="text-green-800" />
+            Missed call / Request call
+          </a>
+        </div>
+      </div>
     </div>
   );
 };
