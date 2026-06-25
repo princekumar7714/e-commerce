@@ -58,11 +58,9 @@ const Categories = () => {
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
         
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Categories
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">Categories</h2>
           <Link
-            to="/products"
+            to={`/products`}
             className="text-green-700 hover:text-green-800 font-semibold text-sm"
           >
             View All

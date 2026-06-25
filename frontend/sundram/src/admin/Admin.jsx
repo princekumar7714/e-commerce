@@ -5,6 +5,14 @@ import { Trash2, Edit, Plus, Save, X, Upload, Image as ImageIcon } from "lucide-
 const API_URL = "https://sundram-backend-1.onrender.com/products";
 const UPLOAD_URL = "https://sundram-backend-1.onrender.com/api/upload";
 
+const BACKEND_URL = "https://sundram-backend-1.onrender.com";
+
+const resolveImageUrl = (p) => {
+  if (!p) return "";
+  if (typeof p !== "string") return "";
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  return `${BACKEND_URL}/${String(p).replace(/^\/+/, "")}`;
+};
 
 const Admin = () => {
   const [products, setProducts] = useState([]);
@@ -30,14 +38,16 @@ const Admin = () => {
     try {
       const response = await axios.get(`${API_URL}/getallproducts`);
       setProducts(response.data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+    } catch (err) {
+      console.error("Error fetching products:", err);
     }
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -58,7 +68,7 @@ const Admin = () => {
       const fullImageUrl = `https://sundram-backend-1.onrender.com${response.data.imagePath}`;
       setFormData((prev) => ({ ...prev, image: fullImageUrl }));
       setPreviewImage(fullImageUrl);
-    } catch (error) {
+      } catch (error) {
       alert("Failed to upload image");
     } finally {
       setUploading(false);
@@ -178,7 +188,11 @@ const Admin = () => {
                   <tr key={product._id || index} className="border-b hover:bg-gray-50 transition">
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-4">
-                        <img src={product.image} alt={product.name} className="w-20 h-20 object-cover rounded-xl border" />
+                        <img
+                          src={resolveImageUrl(product.images?.[0] || product.image)}
+                          alt={product.name}
+                          className="w-20 h-20 object-cover rounded-xl border"
+                        />
                         <div>
                           <h3 className="font-bold text-gray-900">{product.name}</h3>
                           {product.featured && (
