@@ -1,16 +1,27 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+
 import axios from "axios";
 import { Plus, Edit, Trash2, X, Save } from "lucide-react";
 
 const API_URL = "https://sundram-backend-1.onrender.com/products";
-const UPLOAD_URL = "https://sundram-backend-1.onrender.com/api/upload";
+
+const BACKEND_URL = "https://sundram-backend-1.onrender.com";
+
+const resolveImageUrl = (p) => {
+  if (!p) return "";
+  if (typeof p !== "string") return "";
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  return `${BACKEND_URL}/${String(p).replace(/^\/+/, "")}`;
+};
+
 
 function Products() {
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
-  const [uploading, setUploading] = useState(false);
+  const [uploading] = useState(false);
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -268,10 +279,11 @@ function Products() {
                     <div className="flex items-center gap-4">
                       <img
                         src={
-                          product.images?.[0] ||
-                          product.image ||
-                          "https://via.placeholder.com/150"
+                          resolveImageUrl(
+                            product.images?.[0] || product.image
+                          ) || "https://via.placeholder.com/150"
                         }
+
                         alt=""
                         className="w-14 h-14 rounded-xl object-cover border"
                       />
