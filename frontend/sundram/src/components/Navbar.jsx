@@ -226,14 +226,7 @@ const Navbar = () => {
                 Contact
               </Link>
 
-              {isAuthenticated && user?.isAdmin && (
-                <Link
-                  to="/admin"
-                  className="text-[15px] font-semibold text-gray-700 hover:text-green-700 transition"
-                >
-                  Admin
-                </Link>
-              )}
+
 
             </nav>
 
