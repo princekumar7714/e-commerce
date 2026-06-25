@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   MapPin,
   Phone,
@@ -10,7 +10,11 @@ import {
   Headphones,
 } from "lucide-react";
 
+import WhatsAppBotWidget from "../components/WhatsAppBotWidget";
+
 const Contact = () => {
+
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -44,6 +48,8 @@ const Contact = () => {
 
   return (
     <>
+      <WhatsAppBotWidget />
+
       {/* HERO SECTION */}
       <section className="relative bg-gradient-to-r from-green-900 via-green-800 to-green-700 text-white overflow-hidden">
         
