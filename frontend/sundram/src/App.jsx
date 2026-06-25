@@ -25,6 +25,8 @@ import AdminProducts from "./admin/Products";
 import SprayerDetails from "./components/homepage/SprayerDetails";
 import AdminLogin from "./admin/AdminLogin";
 import ProtectedAdminRoute from "./admin/ProtectedAdminRoute";
+import WhatsAppBotWidget from "./components/WhatsAppBotWidget";
+
 
 function AppContent() {
   const location = useLocation();
@@ -34,8 +36,10 @@ function AppContent() {
   return (
     <>
       {!isAdminPage && <Navbar />}
+      {!isAdminPage && <WhatsAppBotWidget />}
 
       <Routes>
+
         {/* Admin Auth (NOT protected — this is the login page itself) */}
         <Route path="/admin/login" element={<AdminLogin />} />
 
